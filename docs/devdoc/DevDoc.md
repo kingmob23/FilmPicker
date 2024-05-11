@@ -9,7 +9,7 @@
 ## Запуск приложения
 - Для инициализации и первоначальной настройки проекта был использован Ansible (`ansible-playbook -i ansible-init-project/inventory/hosts.yaml ansible-init-project/playbooks/setup_project.yaml` в корне проекта). Заметка для контекста, запуск Ansible для запуска приложения не требуется.
 
-- доскер делат брррр
+- Запуск приложения осуществляется с помощью комманды из дирректории film-picker/film-picker-src/backend `poetry run fastapi dev api/main.py`
 
 ## Архитектура и принцип работы
 - описание архитектуры системы, взаимодействие компонентов, а также описание форматов данных или -
