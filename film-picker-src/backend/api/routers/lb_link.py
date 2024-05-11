@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from logic.logic import handle_lb_link
+from logic.main import handle_lb_link
 from pydantic import BaseModel
 
 router = APIRouter()
