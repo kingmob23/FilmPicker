@@ -1,5 +1,19 @@
 ### Роадмап развития приложения "FilmPicker"
 
+## Code Review from claude
+
+### Ansible Playbook
+- Consider extracting some of the longer tasks into separate files for better readability.
+
+### Backend
+- Consider using alembic for database migrations.
+
+### Frontend
+- Add TypeScript configuration to take advantage of static typing.
+
+### Documentation
+- Consider adding more details to the architecture document, such as sequence diagrams for key user flows.
+
 1. **Документация**
    - Создание документации для пользователей и разработчиков. 
    - Для автоматической генерации документации к API FastAPI поддерживает OpenAPI (ранее известный как Swagger).
