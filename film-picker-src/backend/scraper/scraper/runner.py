@@ -1,6 +1,6 @@
+import pika
 from scraper.spiders.watchlist import WatchlistSpider
 from scrapy.crawler import CrawlerProcess
-
 
 def run_spider(url):
     process = CrawlerProcess(
@@ -10,3 +10,19 @@ def run_spider(url):
     )
     process.crawl(WatchlistSpider, start_url=url)
     process.start()
+
+# Настройка соединения с RabbitMQ
+connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+channel = connection.channel()
+channel.queue_declare(queue='task_queue')
+
+def callback(ch, method, properties, body):
+    url = body.decode('utf-8')
+    run_spider(url)
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(queue='task_queue', on_message_callback=callback)
+
+print('Waiting for messages. To exit press CTRL+C')
+channel.start_consuming()

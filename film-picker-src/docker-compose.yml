@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend-api:
+    build:
+      context: ./backend/api
+    container_name: backend-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+
+  scraper:
+    build:
+      context: ./backend/scraper
+    container_name: scraper
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
