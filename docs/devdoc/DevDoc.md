@@ -1,3 +1,5 @@
+tree -I 'frontend|ansible-init-project|docs|__pycache__'
+
 # Developer Documentation
 
 ## Оглавление
