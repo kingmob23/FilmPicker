@@ -1,18 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from my_app.app import crud, models, schemas
+from my_app.app import crud, schemas
 from my_app.app.db import get_db
 
 router = APIRouter()
 
 @router.post("/items/", response_model=schemas.Film)
 def create_item(item: schemas.FilmCreate, db: Session = Depends(get_db)):
-    return crud.create_item(db=db, item=item)
+    return crud.create_film(db=db, title=item.title, year=item.year, username=item.username)
 
 @router.get("/items/", response_model=list[schemas.Film])
 def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+    return crud.get_films(db, skip=skip, limit=limit)
 
 @router.get("/items/{item_id}", response_model=schemas.Film)
 def read_item(item_id: int, db: Session = Depends(get_db)):

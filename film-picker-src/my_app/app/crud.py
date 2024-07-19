@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from my_app.app.config import Film
+from my_app.app.models import Film
 
 def create_film(db: Session, title: str, year: str, username: str):
     db_film = Film(title=title, year=year, username=username)
