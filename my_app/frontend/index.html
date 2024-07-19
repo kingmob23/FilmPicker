@@ -28,7 +28,7 @@
             const result = await response.json();
             document.getElementById('result').innerText = JSON.stringify(result, null, 2);
 
-            const filmsResponse = await fetch(`/films/${username}`);
+            const filmsResponse = await fetch(`/watchlist/${username}`);
             const films = await filmsResponse.json();
             document.getElementById('result').innerText = JSON.stringify(films, null, 2);
         });

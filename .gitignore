@@ -13,3 +13,5 @@ node_modules/
 
 # Ignore macOS folder attributes files
 .DS_Store
+
+film.db
