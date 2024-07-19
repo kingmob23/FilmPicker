@@ -2,6 +2,7 @@ import logging
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+
 from my_app.app.crud import create_film, get_films
 from my_app.app.db import get_db
 from my_app.app.utils.scraper import scrape_watchlist
