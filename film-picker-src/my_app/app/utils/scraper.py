@@ -15,24 +15,30 @@ def scrape_watchlist(username: str) -> list:
         logger.error(f"Failed to fetch data from {url}, status code: {response.status_code}")
         raise Exception(f"Failed to fetch data from {url}")
 
-    logger.debug(f"Response content: {response.content[:1000]}")  # Logging only first 1000 characters for brevity
-    
-    soup = BeautifulSoup(response.content, 'html.parser')
+    logger.debug(f"Response content: {response.text[:1000]}")  # Logging only first 1000 characters for brevity
+
+    # Save the HTML content to a file
+    with open('watchlist.html', 'w', encoding='utf-8') as file:
+        file.write(response.text)
+    logger.info("Saved HTML content to watchlist.html")
+
+    # Parse the HTML content
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Find all film containers in the watchlist
+    film_containers = soup.find_all('li', class_='poster-container')
+
+    # Extract film titles and years
     watchlist = []
+    for film in film_containers:
+        film_div = film.find('div', class_='film-poster')
+        film_title = film_div.get('data-film-slug').replace('-', ' ').title() if film_div else None
+        film_year = film_div.get('data-film-id') if film_div else None
+        if film_title and film_year:
+            watchlist.append((film_title, film_year))
 
-    films = soup.select('li.poster-container')
-    if not films:
-        logger.error("No films found in watchlist")
-        raise Exception("No films found in watchlist")
-
-    for film in films:
-        data_component = film.find('div', class_='react-component')
-        if data_component:
-            title = data_component['data-film-name'] if 'data-film-name' in data_component.attrs else 'No title found'
-            film_url = f"https://letterboxd.com{data_component['data-film-link']}" if 'data-film-link' in data_component.attrs else 'No URL found'
-            watchlist.append({"title": title, "url": film_url})
-        else:
-            logger.error(f"Failed to find react-component in film element: {film}")
-            raise Exception("Failed to find react-component in film element")
+    # Log the extracted films
+    for title, year in watchlist:
+        logger.info(f"Found film: {title} ({year})")
 
     return watchlist
