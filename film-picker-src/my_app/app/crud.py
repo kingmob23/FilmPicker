@@ -1,21 +1,12 @@
 from sqlalchemy.orm import Session
-from my_app.app import models, schemas
+from my_app.app.config import Film
 
-def create_item(db: Session, item: schemas.ItemCreate):
-    db_item = models.Item(title=item.title, url=item.url)
-    db.add(db_item)
+def create_film(db: Session, title: str, year: str, username: str):
+    db_film = Film(title=title, year=year, username=username)
+    db.add(db_film)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    db.refresh(db_film)
+    return db_film
 
-def get_items(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Item).offset(skip).limit(limit).all()
-
-def get_item(db: Session, item_id: int):
-    return db.query(models.Item).filter(models.Item.id == item_id).first()
-
-def create_items_from_watchlist(db: Session, items: list[schemas.ItemCreate]):
-    db_items = [models.Item(title=item.title, url=item.url) for item in items]
-    db.add_all(db_items)
-    db.commit()
-    return db_items
+def get_films(db: Session, username: str):
+    return db.query(Film).filter(Film.username == username).all()

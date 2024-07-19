@@ -1,14 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-class ItemBase(BaseModel):
+class FilmBase(BaseModel):
     title: str
-    url: str
+    year: str
+    username: str
 
-class ItemCreate(ItemBase):
+    class Config(ConfigDict):
+        from_attributes = True
+
+class FilmCreate(FilmBase):
     pass
 
-class Item(ItemBase):
+class Film(FilmBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    class Config(ConfigDict):
+        from_attributes = True

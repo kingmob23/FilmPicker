@@ -2,10 +2,11 @@ import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from my_app.app.routes import scraper, items
-from my_app.app.config import Base, engine
+from my_app.app.db import engine, Base
 
 logging.basicConfig(level=logging.DEBUG)
 
+# Ensure the database tables are created
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
