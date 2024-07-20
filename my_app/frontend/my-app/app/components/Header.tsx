@@ -13,4 +13,5 @@ const Container = styled.header`
   text-align: center;
   background: #282c34;
   color: white;
+  margin-bottom: 20px; /* Добавлено пространство под заголовком */
 `;
