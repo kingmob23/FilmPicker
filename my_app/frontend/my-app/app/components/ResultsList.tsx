@@ -1,6 +1,9 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSearchParams } from 'next/navigation';
+import FilmPicker from './FilmPicker';
 
 const ResultsList = () => {
   const searchParams = useSearchParams();
@@ -19,6 +22,7 @@ const ResultsList = () => {
           body: JSON.stringify({ usernames })
         });
         const data = await response.json();
+        console.log("Fetched intersection:", data.intersection); // Отладочная информация
         setIntersection(data.intersection);
         setIntersectionLen(data.intersection_len);
       } catch (error) {
@@ -34,14 +38,8 @@ const ResultsList = () => {
   return (
     <Container>
       <Title>What to watch?</Title>
-      <List>
-        {intersection.map((film, index) => (
-          <ListItem key={index}>
-            {film}
-          </ListItem>
-        ))}
-      </List>
-      <InfoText>*btw you have {intersectionLen} films in common</InfoText>
+      <FilmPicker films={intersection} />
+      <InfoText>btw you have {intersectionLen} films in common</InfoText>
     </Container>
   );
 };
@@ -63,32 +61,10 @@ const Title = styled.h2`
   margin-bottom: 20px;
 `;
 
-const List = styled.ul`
-  list-style: none;
-  padding: 0;
-  width: 100%;
-  max-height: 60vh; /* Ограничение высоты списка с прокруткой */
-  overflow-y: auto; /* Добавлено для прокрутки */
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Центрирование элементов списка */
-`;
-
-const ListItem = styled.li`
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 60%;
-  max-width: 400px;
-  text-align: center;
-  background-color: #f9f9f9;
-`;
-
 const InfoText = styled.p`
-  margin-top: 20px;
-  text-align: right;
-  width: 60%;
-  max-width: 400px;
-  font-weight: bold;
+  margin-top: 20px; /* Увеличенный отступ от списка фильмов */
+  text-align: right; /* Выравнивание текста по правому краю */
+  width: 60%; /* Ширина соответствует ширине плашек фильмов */
+  max-width: 400px; /* Максимальная ширина текста */
+  font-weight: bold; /* Толстый текст */
 `;

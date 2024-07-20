@@ -1,5 +1,4 @@
-'use strict'
-'use client'
+'use client';
 
 import styled from 'styled-components';
 import Header from '../../components/Header';
