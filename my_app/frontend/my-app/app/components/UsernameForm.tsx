@@ -1,8 +1,12 @@
+'use strict'
+'use client'
+
 import { useState } from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const UsernameForm = () => {
+  const router = useRouter();
   const [usernames, setUsernames] = useState<string[]>(['']);
 
   const handleChange = (index: number, value: string) => {
@@ -13,6 +17,28 @@ const UsernameForm = () => {
 
   const handleAdd = () => {
     setUsernames([...usernames, '']);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/scrape/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ usernames })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Received result:', result);
+        router.push(`/subpages/results?usernames=${encodeURIComponent(JSON.stringify(usernames))}`);
+      } else {
+        console.error('Failed to submit usernames');
+      }
+    } catch (error) {
+      console.error('An error occurred while submitting usernames', error);
+    }
   };
 
   return (
@@ -26,7 +52,7 @@ const UsernameForm = () => {
         />
       ))}
       <Button onClick={handleAdd}>Add Username</Button>
-      <Link href="/results"><Button>Submit</Button></Link>
+      <Button onClick={handleSubmit}>Submit</Button>
     </Container>
   );
 };
@@ -39,6 +65,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
+  gap: 20px;
 `;
 
 const Input = styled.input`

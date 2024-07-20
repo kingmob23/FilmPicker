@@ -1,20 +1,18 @@
 'use strict'
 'use client'
 
-import Link from 'next/link';
 import styled from 'styled-components';
 import Header from '../../components/Header';
+import UsernameForm from '../../components/UsernameForm';
 
-const HomePage = () => (
+const AppPage = () => (
   <Container>
     <Header />
-    <h1>Welcome to Film Picker</h1>
-    <Link href="/subpages/app"><Button>Go to App</Button></Link>
-    <Link href="/help"><Button>Help</Button></Link>
+    <UsernameForm />
   </Container>
 );
 
-export default HomePage;
+export default AppPage;
 
 const Container = styled.div`
   display: flex;
@@ -22,13 +20,5 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  text-align: center;
   gap: 20px; /* Добавлено пространство между элементами */
-`;
-
-const Button = styled.button`
-  margin: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
 `;

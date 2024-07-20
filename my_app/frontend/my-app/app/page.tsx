@@ -9,7 +9,7 @@ const HomePage = () => (
   <Container>
     <Header />
     <h1>Welcome to Film Picker</h1>
-    <Link href="/app"><Button>Go to App</Button></Link>
+    <Link href="/subpages/app"><Button>Go to App</Button></Link>
     <Link href="/help"><Button>Help</Button></Link>
   </Container>
 );
@@ -23,6 +23,7 @@ const Container = styled.div`
   justify-content: center;
   height: 100vh;
   text-align: center;
+  gap: 20px; /* Добавлено пространство между элементами */
 `;
 
 const Button = styled.button`

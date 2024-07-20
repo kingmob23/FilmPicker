@@ -1,6 +1,9 @@
+'use strict'
+'use client'
+
 import styled from 'styled-components';
-import Header from './components/Header'
-import ResultsList from './components/ResultsList';
+import Header from '../../components/Header';
+import ResultsList from '../../components/ResultsList';
 
 const ResultsPage = () => (
   <Container>
@@ -17,4 +20,5 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
+  gap: 20px; /* Добавлено пространство между элементами */
 `;

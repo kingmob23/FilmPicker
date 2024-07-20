@@ -35,10 +35,10 @@ def scrape_watchlist(username: str) -> list:
         for film in film_containers:
             film_div = film.find('div', class_='film-poster')
             film_title = film_div.get('data-film-slug').replace('-', ' ').title() if film_div else None
-            film_year = film_div.get('data-film-id') if film_div else None
-            if film_title and film_year:
-                watchlist.append((film_title, film_year))
-                logger.info(f"Found film: {film_title} ({film_year})")
+            lb_id = film_div.get('data-film-id') if film_div else None
+            if film_title and lb_id:
+                watchlist.append((film_title, int(lb_id)))
+                logger.info(f"Found film: {film_title} ({lb_id})")
 
         # Move to the next page
         page += 1
