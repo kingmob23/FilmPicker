@@ -1,6 +1,5 @@
 import logging
 import random
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -19,29 +18,34 @@ from backend.utils.scraper import scrape_watchlist
 router = APIRouter()
 
 
+class Username(BaseModel):
+    name: str
+    type: str
+    refresh: bool
+
+
 class ScrapeRequest(BaseModel):
-    usernames: List[str]
+    usernames: list[Username]
 
 
 class ScrapeResponse(BaseModel):
     intersection_len: int
-    intersection: List[str]
+    intersection: list[str]
 
 
 @router.post("/scrape/", response_model=ScrapeResponse)
 async def scrape_and_store_watchlists(
     request: ScrapeRequest, db: Session = Depends(get_db)
 ) -> ScrapeResponse:
-    logging.info(f"Started processing request with usernames: {request.usernames}")
+    logging.info(f"Started processing request {request}")
     user_ids = []
 
     for username in request.usernames:
         logging.info(f"Received request to scrape watchlist for user: {username}")
 
-        # Retrieve or create user
-        user = db.query(User).filter(User.username == username).first()
+        user = db.query(User).filter(User.username == username.name).first()
         if not user:
-            user = User(username=username)
+            user = User(username=username.name)
             db.add(user)
             db.commit()
             db.refresh(user)
@@ -56,16 +60,15 @@ async def scrape_and_store_watchlists(
             continue
 
         try:
-            watchlist = scrape_watchlist(username)
+            watchlist = scrape_watchlist(username.name)
             if not watchlist:
                 raise HTTPException(status_code=404, detail="Watchlist is empty")
 
             logging.info(
-                f"Successfully scraped watchlist for user: {username}, found {len(watchlist)} items"
+                f"Successfully scraped watchlist for user: {username.name}, found {len(watchlist)} items"
             )
 
             for wl in watchlist:
-                # Check if the film already exists in the database
                 film = db.query(Film).filter(Film.lb_id == wl.lb_film_id).first()
                 if not film:
                     film = create_film(db, wl.lb_film_id, wl.film_slug)
