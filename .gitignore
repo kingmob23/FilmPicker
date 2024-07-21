@@ -14,4 +14,12 @@ node_modules/
 # Ignore macOS folder attributes files
 .DS_Store
 
+# SQLite database
 film.db
+
+# Coverage
+htmlcov/
+.coverage
+
+# Pytest cache
+.pytest_cache/
