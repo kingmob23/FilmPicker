@@ -8,12 +8,22 @@ import FilmPicker from './FilmPicker';
 const ResultsList = () => {
   const searchParams = useSearchParams();
   const [intersection, setIntersection] = useState<string[]>([]);
-  const [intersectionLen, setIntersectionLen] = useState<number>(0);
+  const [fullIntersectionLen, setfullIntersectionLen] = useState<number>(0);
+  const [fetched, setFetched] = useState<boolean>(false);
+  const [usernames, setUsernames] = useState<string[]>([]);
+
+  useEffect(() => {
+    const usernamesParam = searchParams.get('usernames');
+    if (usernamesParam) {
+      const parsedUsernames = JSON.parse(usernamesParam);
+      setUsernames(parsedUsernames);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchResults = async () => {
+      console.log('Starting fetchResults function.');
       try {
-        const usernames = JSON.parse(searchParams.get('usernames') || '[]');
         const response = await fetch('http://localhost:8000/scrape/', {
           method: 'POST',
           headers: {
@@ -24,22 +34,24 @@ const ResultsList = () => {
         const data = await response.json();
         console.log("Fetched intersection:", data.intersection);
         setIntersection(data.intersection);
-        setIntersectionLen(data.intersection_len);
+        setfullIntersectionLen(data.intersection_len);
       } catch (error) {
         console.error('Error fetching results:', error);
       }
     };
 
-    if (searchParams.get('usernames')) {
+    if (usernames.length > 0 && !fetched) {
+      console.log('Fetching results for the first time.');
       fetchResults();
+      setFetched(true);
     }
-  }, [searchParams]);
+  }, [usernames, fetched]);
 
   return (
     <Container>
       <Title>What to watch?</Title>
       <FilmPicker films={intersection} />
-      <InfoText>btw you have {intersectionLen} films in common</InfoText>
+      <InfoText>btw you have {fullIntersectionLen} films in common</InfoText>
     </Container>
   );
 };
@@ -50,9 +62,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Центрирование по вертикали */
+  justify-content: center;
   width: 100%;
-  height: 100vh; /* Центрирование контейнера по высоте окна */
+  height: 100vh;
   padding: 20px;
 `;
 
@@ -62,9 +74,9 @@ const Title = styled.h2`
 `;
 
 const InfoText = styled.p`
-  margin-top: 20px; /* Увеличенный отступ от списка фильмов */
-  text-align: right; /* Выравнивание текста по правому краю */
-  width: 60%; /* Ширина соответствует ширине плашек фильмов */
-  max-width: 400px; /* Максимальная ширина текста */
-  font-weight: bold; /* Толстый текст */
+  margin-top: 20px;
+  text-align: right;
+  width: 60%;
+  max-width: 400px;
+  font-weight: bold;
 `;

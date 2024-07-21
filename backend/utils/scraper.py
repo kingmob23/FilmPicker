@@ -1,18 +1,27 @@
 import logging
+import os
 from dataclasses import dataclass
 
 import requests
 from bs4 import BeautifulSoup
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("custom_logger")
 
 
 @dataclass
 class FilmDetails:
     lb_film_id: int
-    film_name: str
     film_slug: str
-    release_year: int
+
+
+def save_html_to_file(content: str, username: str, page: int):
+    """useful when debuging"""
+    directory = "html_pages"
+    os.makedirs(directory, exist_ok=True)
+    file_path = os.path.join(directory, f"{username}_watchlist_page_{page}.html")
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(content)
+    logger.info(f"Saved HTML content for {username}, page {page} to {file_path}")
 
 
 def scrape_watchlist(username: str) -> list[FilmDetails]:
@@ -35,11 +44,14 @@ def scrape_watchlist(username: str) -> list[FilmDetails]:
 
         logger.debug(f"Response status code: {response.status_code}")
 
+        # save_html_to_file(response.text, username, page)
+
         soup = BeautifulSoup(response.text, "html.parser")
 
         film_containers = soup.find_all(
-            "li", class_="poster-container film-not-watched"
+            "li", class_=["poster-container", "film-not-watched"]
         )
+
         if not film_containers:
             logger.info(
                 f"No more films found on page {page} for user: {username}. Stopping."
@@ -56,23 +68,17 @@ def scrape_watchlist(username: str) -> list[FilmDetails]:
 
             try:
                 lb_film_id = int(film_div.get("data-film-id"))
-                film_name = film_div.get("data-film-name")
                 film_slug = film_div.get("data-film-slug")
-                release_year = int(film_div.get("data-film-release-year"))
 
-                if lb_film_id and film_name and film_slug and release_year:
-                    watchlist.append(
-                        FilmDetails(lb_film_id, film_name, film_slug, release_year)
-                    )
+                if lb_film_id and film_slug:
+                    watchlist.append(FilmDetails(lb_film_id, film_slug))
                 else:
                     raise ValueError("One or more attributes are missing")
             except (ValueError, TypeError) as e:
                 logger.error(
                     f"Failed to parse film attributes on page {page} for user: {username} - "
                     f"lb_film_id: {film_div.get('data-film-id')}, "
-                    f"film_name: {film_div.get('data-film-name')}, "
-                    f"film_slug: {film_div.get('data-film-slug')}, "
-                    f"release_year: {film_div.get('data-film-release-year')} - error: {e}"
+                    f"film_slug: {film_div.get('data-film-slug')} - error: {e}"
                 )
 
         page += 1

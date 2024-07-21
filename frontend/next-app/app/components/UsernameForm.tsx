@@ -1,8 +1,8 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { useRouter } from 'next/navigation';
 
 const UsernameForm = () => {
   const router = useRouter();
@@ -18,7 +18,13 @@ const UsernameForm = () => {
     setUsernames([...usernames, '']);
   };
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
+    console.log('Submitting usernames:', usernames);
     try {
       const response = await fetch('http://localhost:8000/scrape/', {
         method: 'POST',
@@ -37,8 +43,11 @@ const UsernameForm = () => {
       }
     } catch (error) {
       console.error('An error occurred while submitting usernames', error);
+    } finally {
+      setSubmitting(false);
     }
   };
+
 
   return (
     <Container>

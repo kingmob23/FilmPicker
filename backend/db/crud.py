@@ -4,10 +4,8 @@ from sqlalchemy.orm import Session
 from backend.db.models import Film
 
 
-def create_film(
-    db: Session, lb_id: int, title: str, slug: str, year: int, username: str
-):
-    db_film = Film(lb_id=lb_id, title=title, slug=slug, year=year, username=username)
+def create_film(db: Session, lb_id: int, slug: str, username: str):
+    db_film = Film(lb_id=lb_id, slug=slug, username=username)
     db.add(db_film)
     db.commit()
     db.refresh(db_film)
@@ -20,15 +18,13 @@ def get_watchlist(db: Session, username: str):
 
 def get_watchlist_intersection(db: Session, usernames: list):
     subquery = (
-        db.query(Film.title, Film.year, func.count(Film.username).label("user_count"))
+        db.query(Film.slug, func.count(Film.username).label("user_count"))
         .filter(Film.username.in_(usernames))
-        .group_by(Film.title, Film.year)
+        .group_by(Film.slug)
         .subquery()
     )
 
-    query = db.query(subquery.c.title, subquery.c.year).filter(
-        subquery.c.user_count == len(usernames)
-    )
+    query = db.query(subquery.c.slug).filter(subquery.c.user_count == len(usernames))
 
     results = query.all()
-    return [{"title": row.title, "year": row.year} for row in results]
+    return [{"slug": row.slug} for row in results]

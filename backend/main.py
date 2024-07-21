@@ -6,14 +6,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.db.database import get_db
 from backend.routes import scraper
 
-logger = logging.getLogger("custom_logger")
-
 logging.basicConfig(
     level=logging.INFO,
 )
 
-uvicorn_log_level = logging.getLevelName(logging.getLogger("uvicorn").level)
-logger.setLevel(uvicorn_log_level)
+logger = logging.getLogger("custom_logger")
 
 app = FastAPI()
 
