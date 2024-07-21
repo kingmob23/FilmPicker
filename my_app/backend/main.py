@@ -2,10 +2,9 @@ import logging
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
-from my_app.app.db import get_db
-from my_app.app.routes import scraper
+from my_app.backend.db.database import get_db
+from my_app.backend.routes import scraper
 
 logging.basicConfig(level=logging.INFO)
 

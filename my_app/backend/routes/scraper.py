@@ -6,9 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from my_app.app.db.crud import create_film, get_watchlist, get_watchlist_intersection
-from my_app.app.db.db import get_db
-from my_app.app.utils.scraper import scrape_watchlist
+from my_app.backend.db.crud import (
+    create_film,
+    get_watchlist,
+    get_watchlist_intersection,
+)
+from my_app.backend.db.database import get_db
+from my_app.backend.utils.scraper import scrape_watchlist
 
 router = APIRouter()
 

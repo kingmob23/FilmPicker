@@ -1,7 +1,7 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from my_app.app.db.models import Film
+from my_app.backend.db.models import Film
 
 
 def create_film(db: Session, title: str, lb_id: str, username: str):

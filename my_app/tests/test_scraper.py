@@ -1,5 +1,6 @@
 import os
 import sys
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -8,14 +9,22 @@ from sqlalchemy.orm import sessionmaker
 # Ensure the application path is in the sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-from my_app.app.main import app
-from my_app.app.db import Base, SessionLocal, engine, get_db  # Ensure get_db is imported
-from my_app.app.crud import get_films
+from my_app.backend.db import (  # Ensure get_db is imported
+    Base,
+    SessionLocal,
+    engine,
+    get_db,
+)
+from my_app.backend.db.crud import get_films
+from my_app.backend.main import app
 
 # Set up a test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 # Override the get_db dependency to use the test database
 def override_get_db():
@@ -25,15 +34,18 @@ def override_get_db():
     finally:
         db.close()
 
+
 app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
+
 
 @pytest.fixture(scope="module")
 def setup_database():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+
 
 def test_scrape_and_save_films(setup_database):
     username = "cronenbergman"
@@ -48,6 +60,7 @@ def test_scrape_and_save_films(setup_database):
     assert len(saved_films) > 0
     for film in saved_films:
         assert film.username == username
+
 
 def test_get_user_films(setup_database):
     username = "cronenbergman"
