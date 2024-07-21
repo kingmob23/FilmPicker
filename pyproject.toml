@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "film-picker-src"
+name = "backend"
 version = "0.1.0"
 description = ""
 authors = ["kingmob23 <yaroslav.safonov97@gmail.com>"]

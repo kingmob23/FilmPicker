@@ -9,14 +9,9 @@ from sqlalchemy.orm import sessionmaker
 # Ensure the application path is in the sys.path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../.."))
 
-from my_app.backend.db import (  # Ensure get_db is imported
-    Base,
-    SessionLocal,
-    engine,
-    get_db,
-)
-from my_app.backend.db.crud import get_films
-from my_app.backend.main import app
+from backend.db import Base, SessionLocal, engine, get_db  # Ensure get_db is imported
+from backend.db.crud import get_films
+from backend.main import app
 
 # Set up a test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

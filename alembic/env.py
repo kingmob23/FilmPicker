@@ -7,7 +7,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from my_app.backend.db.models import Base
+from backend.db.models import Base
 
 config = context.config
 fileConfig(config.config_file_name)

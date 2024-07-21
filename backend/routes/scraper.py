@@ -6,13 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from my_app.backend.db.crud import (
-    create_film,
-    get_watchlist,
-    get_watchlist_intersection,
-)
-from my_app.backend.db.database import get_db
-from my_app.backend.utils.scraper import scrape_watchlist
+from backend.db.crud import create_film, get_watchlist, get_watchlist_intersection
+from backend.db.database import get_db
+from backend.utils.scraper import scrape_watchlist
 
 router = APIRouter()
 
@@ -49,8 +45,10 @@ async def scrape_and_store_watchlists(
                 f"Successfully scraped watchlist for user: {username}, found {len(watchlist)} items"
             )
 
-            for title, lb_id in watchlist:
-                create_film(db, title, lb_id, username)
+            for lb_film_id, film_name, film_slug, release_year in watchlist:
+                create_film(
+                    db, lb_film_id, film_name, film_slug, release_year, username
+                )
         except Exception as e:
             logging.error(f"Error scraping watchlist for user {username}: {e}")
 

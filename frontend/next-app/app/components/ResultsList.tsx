@@ -1,8 +1,8 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useSearchParams } from 'next/navigation';
 import FilmPicker from './FilmPicker';
 
 const ResultsList = () => {
@@ -22,7 +22,7 @@ const ResultsList = () => {
           body: JSON.stringify({ usernames })
         });
         const data = await response.json();
-        console.log("Fetched intersection:", data.intersection); // Отладочная информация
+        console.log("Fetched intersection:", data.intersection);
         setIntersection(data.intersection);
         setIntersectionLen(data.intersection_len);
       } catch (error) {
