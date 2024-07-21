@@ -5,7 +5,7 @@
 FilmPicker — это веб-приложение, предназначенное для помощи группам пользователей в выборе фильма для совместного просмотра, основываясь на их индивидуальных предпочтениях.
 
 ## Запуск
-poetry run uvicorn main:app --reload
+poetry run uvicorn backend.main:app --reload
 (from next-app) npm run dev
 
 ## Колаборация
