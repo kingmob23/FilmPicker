@@ -83,6 +83,7 @@ const UsernameForm = () => {
   return (
     <Container>
       <h1>Enter Usernames</h1>
+      <p>*You actually need to enter user id for kinopoisk. You can find it in your profile link. It is what it is for the time.</p>
       <form onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (
           <FieldContainer key={field.id}>

@@ -1,5 +1,4 @@
 import logging
-import os
 from dataclasses import dataclass
 
 import requests
@@ -14,17 +13,7 @@ class FilmDetails:
     film_slug: str
 
 
-def save_html_to_file(content: str, username: str, page: int):
-    """useful when debuging"""
-    directory = "html_pages"
-    os.makedirs(directory, exist_ok=True)
-    file_path = os.path.join(directory, f"{username}_watchlist_page_{page}.html")
-    with open(file_path, "w", encoding="utf-8") as file:
-        file.write(content)
-    logger.info(f"Saved HTML content for {username}, page {page} to {file_path}")
-
-
-def scrape_watchlist(username: str) -> list[FilmDetails]:
+def scrape__lb_watchlist(username: str) -> list[FilmDetails]:
     base_url = f"https://letterboxd.com/{username}/watchlist/page/"
     page = 1
     watchlist = []
@@ -43,8 +32,6 @@ def scrape_watchlist(username: str) -> list[FilmDetails]:
             break
 
         logger.debug(f"Response status code: {response.status_code}")
-
-        # save_html_to_file(response.text, username, page)
 
         soup = BeautifulSoup(response.text, "html.parser")
 

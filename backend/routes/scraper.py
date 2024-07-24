@@ -13,7 +13,8 @@ from backend.db.crud import (
 )
 from backend.db.database import get_db
 from backend.db.models import Film, User
-from backend.utils.scraper import scrape_watchlist
+from backend.utils.kp_scraper import scrape_kp_watchlist
+from backend.utils.lb_scraper import scrape__lb_watchlist
 
 router = APIRouter()
 
@@ -31,6 +32,15 @@ class ScrapeRequest(BaseModel):
 class ScrapeResponse(BaseModel):
     intersection_len: int
     intersection: list[str]
+
+
+def scrape_user_watchlist(username: Username):
+    if username.type.lower() == "lb":
+        return scrape__lb_watchlist(username.name)
+    elif username.type.lower() == "kp":
+        return scrape_kp_watchlist(username.name)
+    else:
+        raise HTTPException(status_code=400, detail="Unknown watchlist type")
 
 
 @router.post("/scrape/", response_model=ScrapeResponse)
@@ -53,14 +63,14 @@ async def scrape_and_store_watchlists(
         user_ids.append(user.id)
 
         user_watchlist = get_user_watchlist(db, user.id)
-        if user_watchlist:
+        if user_watchlist and not username.refresh:
             logging.info(
-                f"Found existing watchlist for user: {username} in the database"
+                f"Found existing watchlist for user: {username.name} in the database"
             )
             continue
 
         try:
-            watchlist = scrape_watchlist(username.name)
+            watchlist = scrape_user_watchlist(username)
             if not watchlist:
                 raise HTTPException(status_code=404, detail="Watchlist is empty")
 
@@ -69,11 +79,12 @@ async def scrape_and_store_watchlists(
             )
 
             for wl in watchlist:
-                film = db.query(Film).filter(Film.lb_id == wl.lb_film_id).first()
-                if not film:
-                    film = create_film(db, wl.lb_film_id, wl.film_slug)
+                if username.type.lower() == "lb":
+                    film = db.query(Film).filter(Film.lb_id == wl.lb_film_id).first()
+                    if not film:
+                        film = create_film(db, wl.lb_film_id, wl.film_slug)
 
-                add_film_to_watchlist(db, user.id, film.id)
+                    add_film_to_watchlist(db, user.id, film.id)
 
         except Exception as e:
             logging.error(f"Error scraping watchlist for user {username}: {e}")
