@@ -87,8 +87,9 @@ async def scrape_and_store_watchlists(
                     film = db.query(Film).filter(Film.lb_id == wl.lb_film_id).first()
                     if not film:
                         film = create_film(
-                            db, lb_id=wl.lb_film_id, lb_slug=wl.film_slug, source="lb"
+                            db, lb_id=wl.lb_film_id, lb_slug=wl.film_slug
                         )
+
                 elif username.type.lower() in ["kp", "ayz"]:
                     film = (
                         db.query(Film)
@@ -118,7 +119,21 @@ async def scrape_and_store_watchlists(
             )
 
     intersection = get_watchlist_intersection(db, user_ids)
+
+    if not intersection:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing request {ScrapeRequest}, no intersection in user's watchlist found",
+        )
+
     n = len(request.usernames) + 1
+
+    if len(intersection) < n:
+        return ScrapeResponse(
+            intersection_len=len(intersection),
+            intersection=intersection,
+        )
+
     random_intersection = random.sample(
         [
             item["slug"] if item.get("slug") else item["kp_english_title"]
@@ -127,6 +142,9 @@ async def scrape_and_store_watchlists(
         min(len(intersection), n),
     )
 
+    print(random_intersection, type(random_intersection))
+
     return ScrapeResponse(
-        intersection=random_intersection, intersection_len=len(intersection)
+        intersection_len=len(intersection),
+        intersection=random_intersection,
     )

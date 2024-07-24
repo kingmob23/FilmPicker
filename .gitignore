@@ -23,3 +23,7 @@ htmlcov/
 
 # Pytest cache
 .pytest_cache/
+
+
+csv/
+html/

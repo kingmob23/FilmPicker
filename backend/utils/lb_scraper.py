@@ -58,7 +58,8 @@ def scrape__lb_watchlist(username: str) -> list[FilmDetails]:
                 film_slug = film_div.get("data-film-slug")
 
                 if lb_film_id and film_slug:
-                    watchlist.append(FilmDetails(lb_film_id, film_slug))
+                    film_details = FilmDetails(lb_film_id, film_slug)
+                    watchlist.append(film_details)
                 else:
                     raise ValueError("One or more attributes are missing")
             except (ValueError, TypeError) as e:
