@@ -3,6 +3,7 @@ import random
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.db.crud import (
@@ -13,6 +14,7 @@ from backend.db.crud import (
 )
 from backend.db.database import get_db
 from backend.db.models import Film, User
+from backend.utils.kp_from_files_scaper import scrape_kp_watchlist_from_files
 from backend.utils.kp_scraper import scrape_kp_watchlist
 from backend.utils.lb_scraper import scrape__lb_watchlist
 
@@ -39,6 +41,8 @@ def scrape_user_watchlist(username: Username):
         return scrape__lb_watchlist(username.name)
     elif username.type.lower() == "kp":
         return scrape_kp_watchlist(username.name)
+    elif username.type.lower() == "ayz":
+        return scrape_kp_watchlist_from_files(username.name)
     else:
         raise HTTPException(status_code=400, detail="Unknown watchlist type")
 
@@ -82,17 +86,45 @@ async def scrape_and_store_watchlists(
                 if username.type.lower() == "lb":
                     film = db.query(Film).filter(Film.lb_id == wl.lb_film_id).first()
                     if not film:
-                        film = create_film(db, wl.lb_film_id, wl.film_slug)
+                        film = create_film(
+                            db, lb_id=wl.lb_film_id, lb_slug=wl.film_slug, source="lb"
+                        )
+                elif username.type.lower() in ["kp", "ayz"]:
+                    film = (
+                        db.query(Film)
+                        .filter(Film.kp_russian_title == wl.russian_title)
+                        .first()
+                    )
+                    if not film:
+                        film = create_film(
+                            db,
+                            kp_russian_title=wl.russian_title,
+                            kp_english_title=wl.english_title,
+                            kp_director_name_rus=wl.director_name_rus,
+                            kp_year=wl.year,
+                        )
 
+                try:
                     add_film_to_watchlist(db, user.id, film.id)
+                except IntegrityError as e:
+                    logging.error(
+                        f"Failed to add film {film.id} to watchlist for user {username.name}: {e}"
+                    )
 
         except Exception as e:
             logging.error(f"Error scraping watchlist for user {username}: {e}")
+            raise HTTPException(
+                status_code=500, detail=f"Error processing user {username.name}"
+            )
 
     intersection = get_watchlist_intersection(db, user_ids)
     n = len(request.usernames) + 1
     random_intersection = random.sample(
-        [item["slug"] for item in intersection], min(len(intersection), n)
+        [
+            item["slug"] if item.get("slug") else item["kp_english_title"]
+            for item in intersection
+        ],
+        min(len(intersection), n),
     )
 
     return ScrapeResponse(
