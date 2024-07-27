@@ -1,3 +1,5 @@
+//Consider adding media queries to ensure responsiveness later on
+
 'use client';
 
 import Link from 'next/link';

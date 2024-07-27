@@ -1,10 +1,11 @@
+import React from 'react';
 import styled from 'styled-components';
 
-const Header = () => (
+const Header = React.memo(() => (
   <Container>
     <h1>Film Picker</h1>
   </Container>
-);
+));
 
 export default Header;
 
@@ -13,5 +14,5 @@ const Container = styled.header`
   text-align: center;
   background: #282c34;
   color: white;
-  margin-bottom: 20px; /* Добавлено пространство под заголовком */
+  margin-bottom: 20px;
 `;
