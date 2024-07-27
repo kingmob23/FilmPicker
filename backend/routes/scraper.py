@@ -1,11 +1,6 @@
 import logging
 import random
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-
 from backend.db.crud import (
     add_film_to_watchlist,
     create_film,
@@ -17,6 +12,10 @@ from backend.db.models import Film, User
 from backend.utils.kp_from_files_scaper import scrape_kp_watchlist_from_files
 from backend.utils.kp_scraper import scrape_kp_watchlist
 from backend.utils.lb_scraper import scrape__lb_watchlist
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -142,7 +141,7 @@ async def scrape_and_store_watchlists(
         min(len(intersection), n),
     )
 
-    print(random_intersection, type(random_intersection))
+    logging.info(f"{random_intersection} of type {type(random_intersection)}")
 
     return ScrapeResponse(
         intersection_len=len(intersection),

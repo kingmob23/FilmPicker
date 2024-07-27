@@ -1,3 +1,6 @@
+// Suggestions:
+// Add more meta tags for better SEO and social media sharing.
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";

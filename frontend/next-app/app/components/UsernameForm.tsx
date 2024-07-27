@@ -2,6 +2,7 @@
 
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Controller, FieldError, useFieldArray, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import * as Yup from 'yup';
@@ -28,44 +29,63 @@ const schema = Yup.object().shape({
 
 const UsernameForm = () => {
   const router = useRouter();
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, watch, register, getValues } = useForm<FormData>({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { control, handleSubmit, formState: { errors }, register, getValues } = useForm<FormData>({
     resolver: yupResolver(schema),
     defaultValues: { usernames: [{ name: '', type: '', refresh: false }] }
   });
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'usernames'
   });
 
+  useEffect(() => {
+    console.log("UsernameForm: Component mounted or updated");
+  }, [fields]);
+
   const onSubmit = async (data: FormData) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    console.log("UsernameForm: Submitting data:", data);
+
     try {
-        const payload = {
-            usernames: data.usernames.map(username => ({
-                name: username.name,
-                type: username.type,
-                refresh: username.refresh,
-            }))
+      const payload = {
+        requestId: Date.now(),
+        usernames: data.usernames.map(username => ({
+          name: username.name,
+          type: username.type,
+          refresh: username.refresh,
+        }))
+      };
+
+      console.log('UsernameForm: Gathered data:', JSON.stringify(payload));
+
+      const response = await fetch('http://localhost:8000/scrape/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('UsernameForm: Received result:', result);
+
+        const query = {
+          usernames: JSON.stringify(data.usernames),
+          intersection: JSON.stringify(result.intersection),
+          intersectionLen: result.intersection_len,
         };
 
-        console.log('Gathered data:', JSON.stringify(payload));
-
-        const response = await fetch('http://localhost:8000/scrape/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            console.log('Received result:', result);
-            router.push(`/subpages/results?usernames=${encodeURIComponent(JSON.stringify(data.usernames))}`);
-        } else {
-            const error = await response.json();
-            console.error('Failed to submit usernames:', error);
-        }
+        const queryString = new URLSearchParams(query).toString();
+        router.push(`/subpages/results?${queryString}`);
+      } else {
+        const error = await response.json();
+        console.error('UsernameForm: Failed to submit usernames:', error);
+      }
     } catch (error) {
-        console.error('An error occurred while submitting usernames', error);
+      console.error('UsernameForm: An error occurred while submitting usernames', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,7 +103,7 @@ const UsernameForm = () => {
   return (
     <Container>
       <h1>Enter Usernames</h1>
-      <p>*Integration with kinopoist is not actually working. Fucking capchka!</p>
+      <p>*Integration with kinopoisk is not actually working. Fucking capchka!</p>
       <form onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (
           <FieldContainer key={field.id}>
