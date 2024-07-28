@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import * as Yup from 'yup';
@@ -32,6 +32,7 @@ const schema = Yup.object().shape({
 const UsernameForm = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState('');
   const {
     control,
     handleSubmit,
@@ -47,10 +48,6 @@ const UsernameForm = () => {
     name: 'usernames',
   });
 
-  useEffect(() => {
-    console.log('UsernameForm: Component mounted or updated');
-  }, [fields]);
-
   const handleAddUsername = () => {
     const usernames = getValues('usernames') ?? [];
     const lastUsername = usernames[usernames.length - 1] ?? {
@@ -61,6 +58,9 @@ const UsernameForm = () => {
 
     if (lastUsername.name.trim() !== '') {
       append({ name: '', type: '', refresh: false });
+      setMessage('');
+    } else {
+      setMessage('Please complete the current username field before adding a new one.');
     }
   };
 
@@ -80,6 +80,7 @@ const UsernameForm = () => {
             errors={errors}
           />
         ))}
+        {message && <Message>{message}</Message>}
         <Button type="button" onClick={handleAddUsername}>
           Add Username
         </Button>
@@ -93,7 +94,6 @@ const UsernameForm = () => {
 
 export default UsernameForm;
 
-// Styled components
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -109,3 +109,9 @@ const Button = styled.button`
   font-size: 16px;
   cursor: pointer;
 `;
+
+const Message = styled.p`
+  color: red;
+  font-size: 14px;
+`;
+
