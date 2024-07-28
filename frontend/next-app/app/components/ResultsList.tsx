@@ -1,24 +1,18 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FilmPicker from './FilmPicker';
 
 const ResultsList = () => {
   const searchParams = useSearchParams();
-  const [usernames, setUsernames] = useState([]);
   const [intersection, setIntersection] = useState([]);
   const [intersectionLen, setIntersectionLen] = useState(0);
 
   useEffect(() => {
-    const usernamesParam = searchParams.get('usernames');
     const intersectionParam = searchParams.get('intersection');
     const intersectionLenParam = searchParams.get('intersectionLen');
-
-    if (usernamesParam) {
-      setUsernames(JSON.parse(usernamesParam));
-    }
 
     if (intersectionParam) {
       setIntersection(JSON.parse(intersectionParam));
@@ -38,7 +32,13 @@ const ResultsList = () => {
   );
 };
 
-export default ResultsList;
+const ResultsPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <ResultsList />
+  </Suspense>
+);
+
+export default ResultsPage;
 
 const Container = styled.div`
   display: flex;

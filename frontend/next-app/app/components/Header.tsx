@@ -7,6 +7,8 @@ const Header = React.memo(() => (
   </Container>
 ));
 
+Header.displayName = 'Header';
+
 export default Header;
 
 const Container = styled.header`
