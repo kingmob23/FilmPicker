@@ -6,7 +6,7 @@ authors = ["kingmob23 <yaroslav.safonov97@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 fastapi = "^0.111.1"
 sqlalchemy = "^2.0.31"
 pydantic = "^2.8.2"
