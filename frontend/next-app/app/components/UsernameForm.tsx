@@ -33,6 +33,7 @@ const UsernameForm = () => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [delayMessage, setDelayMessage] = useState('');
   const {
     control,
     handleSubmit,
@@ -64,11 +65,24 @@ const UsernameForm = () => {
     }
   };
 
+  const onSubmit = (data: FormData) => {
+    setIsSubmitting(true);
+    let delayTimer = setTimeout(() => {
+      setDelayMessage('The initial loading or update may take some time.');
+    }, 1000);
+
+    handleSubmitData(data, isSubmitting, setIsSubmitting, router).finally(() => {
+      clearTimeout(delayTimer);
+      setIsSubmitting(false);
+      setDelayMessage('');
+    });
+  };
+
   return (
     <Container>
       <h1>Enter Usernames</h1>
       <p>*Integration with kinopoisk is not actually working. Fucking capchka!</p>
-      <form onSubmit={handleSubmit((data) => handleSubmitData(data, isSubmitting, setIsSubmitting, router))}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (
           <UsernameField
             key={field.id}
@@ -81,6 +95,7 @@ const UsernameForm = () => {
           />
         ))}
         {message && <Message>{message}</Message>}
+        {delayMessage && <Message>{delayMessage}</Message>}
         <Button type="button" onClick={handleAddUsername}>
           Add Username
         </Button>
@@ -114,4 +129,3 @@ const Message = styled.p`
   color: red;
   font-size: 14px;
 `;
-
