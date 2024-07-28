@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 const FilmPicker = ({ films }: { films: string[] }) => {
   const [selectedFilms, setSelectedFilms] = useState<string[]>(films);
+  const [copiedFilm, setCopiedFilm] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedFilms(films);
@@ -18,16 +19,29 @@ const FilmPicker = ({ films }: { films: string[] }) => {
     );
   };
 
+  const handleCopyFilm = (film: string) => {
+    navigator.clipboard.writeText(film);
+    setCopiedFilm(film);
+    setTimeout(() => setCopiedFilm(null), 1000);
+  };
+
   return (
     <Container>
       <List>
         {selectedFilms.map((film, index) => (
-          <ListItem
-            key={index}
-            onClick={() => handleToggleFilm(film)}
-            $crossedOut={selectedFilms.length > 1 && !selectedFilms.includes(film)}
-          >
-            {film}
+          <ListItem key={index}>
+            <FilmText
+              onClick={() => handleToggleFilm(film)}
+              $crossedOut={selectedFilms.length > 1 && !selectedFilms.includes(film)}
+            >
+              {film}
+            </FilmText>
+            <CopyButton
+              onClick={() => handleCopyFilm(film)}
+              $isCopied={copiedFilm === film}
+            >
+              {copiedFilm === film ? 'Copied' : 'Copy'}
+            </CopyButton>
           </ListItem>
         ))}
       </List>
@@ -56,7 +70,7 @@ const List = styled.ul`
   align-items: center;
 `;
 
-const ListItem = styled.li<{ $crossedOut: boolean }>`
+const ListItem = styled.li`
   margin: 10px 0;
   padding: 10px;
   border: 1px solid #ccc;
@@ -65,11 +79,33 @@ const ListItem = styled.li<{ $crossedOut: boolean }>`
   max-width: 400px;
   text-align: center;
   background-color: #f9f9f9;
-  text-decoration: ${({ $crossedOut }) => ($crossedOut ? 'line-through' : 'none')};
-  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   &:hover {
     background-color: #e9e9e9;
+  }
+`;
+
+const FilmText = styled.span<{ $crossedOut: boolean }>`
+  text-decoration: ${({ $crossedOut }) => ($crossedOut ? 'line-through' : 'none')};
+  cursor: pointer;
+  flex-grow: 1;
+`;
+
+const CopyButton = styled.button<{ $isCopied: boolean }>`
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: ${({ $isCopied }) => ($isCopied ? '#a0a0a0' : '#dcdcdc')};
+  color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #c0c0c0;
   }
 `;
 
