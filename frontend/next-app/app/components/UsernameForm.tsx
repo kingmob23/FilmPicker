@@ -22,7 +22,7 @@ const schema = Yup.object().shape({
     .of(
       Yup.object().shape({
         name: Yup.string().required('Username is required'),
-        type: Yup.string().required('Type is required'),
+        type: Yup.string().oneOf(['LB', 'KP']).required('Type is required'),
         refresh: Yup.boolean(),
       })
     )
@@ -40,9 +40,11 @@ const UsernameForm = () => {
     formState: { errors },
     register,
     getValues,
+    setValue,
+    watch,
   } = useForm<FormData>({
     resolver: yupResolver(schema) as any,
-    defaultValues: { usernames: [{ name: '', type: '', refresh: false }] },
+    defaultValues: { usernames: [{ name: '', type: 'LB', refresh: false }] },
   });
   const { fields, append, remove } = useFieldArray({
     control,
@@ -53,12 +55,12 @@ const UsernameForm = () => {
     const usernames = getValues('usernames') ?? [];
     const lastUsername = usernames[usernames.length - 1] ?? {
       name: '',
-      type: '',
+      type: 'LB',
       refresh: false,
     };
 
     if (lastUsername.name.trim() !== '') {
-      append({ name: '', type: '', refresh: false });
+      append({ name: '', type: 'LB', refresh: false });
       setMessage('');
     } else {
       setMessage('Please complete the current username field before adding a new one.');
@@ -78,10 +80,14 @@ const UsernameForm = () => {
     });
   };
 
+  const setTypeToLB = (index: number) => {
+    setMessage('Integration with kinopoisk is not yet working. CAPTCHA issue!');
+    setValue(`usernames.${index}.type`, 'LB');
+  };
+
   return (
     <Container>
       <h1>Enter Usernames</h1>
-      <p>*Integration with kinopoisk is not actually working. Fucking capchka!</p>
       <form onSubmit={handleSubmit(onSubmit)}>
         {fields.map((field, index) => (
           <UsernameField
@@ -91,6 +97,7 @@ const UsernameForm = () => {
             index={index}
             field={field}
             remove={remove}
+            setTypeToLB={setTypeToLB}
             errors={errors}
           />
         ))}

@@ -3,12 +3,13 @@ import { Control, Controller, FieldError, UseFormRegister } from 'react-hook-for
 import styled from 'styled-components';
 
 interface UsernameFieldProps {
-  control: Control<any>; // Adjust 'any' to your specific form data type if needed
-  register: UseFormRegister<any>; // Adjust 'any' to your specific form data type if needed
+  control: Control<any>;
+  register: UseFormRegister<any>;
   index: number;
-  field: any; // Adjust 'any' to the specific field type if needed
+  field: any;
   remove: (index: number) => void;
-  errors: any; // Adjust 'any' to the specific error type if needed
+  setTypeToLB: (index: number) => void;
+  errors: any;
 }
 
 const UsernameField: React.FC<UsernameFieldProps> = ({
@@ -17,6 +18,7 @@ const UsernameField: React.FC<UsernameFieldProps> = ({
   index,
   field,
   remove,
+  setTypeToLB,
   errors,
 }) => {
   const isFieldError = (error: any): error is FieldError => error?.message !== undefined;
@@ -32,29 +34,23 @@ const UsernameField: React.FC<UsernameFieldProps> = ({
               <label>
                 <input
                   type="radio"
-                  value="kp"
-                  checked={field.value === 'kp'}
-                  onChange={() => field.onChange('kp')}
+                  value="KP"
+                  checked={field.value === 'KP'}
+                  onChange={() => {
+                    field.onChange('KP');
+                    setTypeToLB(index);
+                  }}
                 />
                 KP
               </label>
               <label>
                 <input
                   type="radio"
-                  value="lb"
-                  checked={field.value === 'lb'}
-                  onChange={() => field.onChange('lb')}
+                  value="LB"
+                  checked={field.value === 'LB'}
+                  onChange={() => field.onChange('LB')}
                 />
                 LB
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="ayz"
-                  checked={field.value === 'ayz'}
-                  onChange={() => field.onChange('ayz')}
-                />
-                ayz
               </label>
             </div>
             <label>
