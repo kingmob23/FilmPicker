@@ -1,10 +1,9 @@
 import logging
 
-from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from backend.db.database import get_db
 from backend.routes import scraper
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,4 +21,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(scraper.router, dependencies=[Depends(get_db)])
+app.include_router(scraper.router, prefix="/api", dependencies=[Depends(get_db)])

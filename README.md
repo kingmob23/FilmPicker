@@ -8,6 +8,12 @@ FilmPicker — это веб-приложение, предназначенно�
 poetry run uvicorn backend.main:app --reload
 (from next-app) npm run dev
 
+---
+
+## (Пере)запуск на сервере
+systemctl stop myapp.service
+pm2 stop my-next-app
+
 ## Колаборация
 приветсвуется =)
 
