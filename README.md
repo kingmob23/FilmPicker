@@ -14,6 +14,17 @@ poetry run uvicorn backend.main:app --reload
 systemctl stop myapp.service
 pm2 stop my-next-app
 
+pm2 status
+pm2 logs my-next-app
+
+systemctl status myapp
+journalctl -u myapp.service -f
+
+/etc/nginx/sites-available/default
+
+pm2 start npm --name "my-next-app" -- start
+
+
 ## Колаборация
 приветсвуется =)
 
