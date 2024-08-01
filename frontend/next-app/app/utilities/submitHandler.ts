@@ -8,7 +8,7 @@ export const handleSubmitData = async (
 ) => {
   if (isSubmitting) return;
   setIsSubmitting(true);
-  console.log("UsernameForm: Submitting data:", data);
+  console.log("submitHandler: Submitting data:", data);
 
   try {
     const payload = {
@@ -20,7 +20,7 @@ export const handleSubmitData = async (
       }))
     };
 
-    console.log('UsernameForm: Gathered data:', JSON.stringify(payload));
+    console.log('submitHandler: Gathered data:', JSON.stringify(payload));
 
     const response = await fetch('http://localhost:8000/api/scrape/', {
       method: 'POST',
@@ -30,7 +30,7 @@ export const handleSubmitData = async (
 
     if (response.ok) {
       const result = await response.json();
-      console.log('UsernameForm: Received result:', result);
+      console.log('submitHandler: Received result:', result);
 
       const query = {
         usernames: JSON.stringify(data.usernames),
@@ -42,10 +42,10 @@ export const handleSubmitData = async (
       router.push(`/subpages/results?${queryString}`);
     } else {
       const error = await response.json();
-      console.error('UsernameForm: Failed to submit usernames:', error);
+      console.error('submitHandler: Failed to submit usernames:', error);
     }
   } catch (error) {
-    console.error('UsernameForm: An error occurred while submitting usernames', error);
+    console.error('submitHandler: An error occurred while submitting usernames', error);
   } finally {
     setIsSubmitting(false);
   }

@@ -19,5 +19,5 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
-  gap: 20px; /* Добавлено пространство между элементами */
+  gap: 20px;
 `;

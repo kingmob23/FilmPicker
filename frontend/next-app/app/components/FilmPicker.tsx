@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Username } from '../types';
 
-const FilmPicker = ({ films }: { films: string[] }) => {
+const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username[] }) => {
   const [selectedFilms, setSelectedFilms] = useState<string[]>(films);
   const [copiedFilm, setCopiedFilm] = useState<string | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     setSelectedFilms(films);
@@ -25,8 +27,30 @@ const FilmPicker = ({ films }: { films: string[] }) => {
     setTimeout(() => setCopiedFilm(null), 1000);
   };
 
+  const handleFinalDecision = async () => {
+    if (selectedFilms.length !== 1) return;
+    setIsRemoving(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/api/watchlist/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ film: selectedFilms[0], usernames }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to remove the film');
+        return;
+      }
+    } catch (error) {
+      console.error('An error occurred while removing the film', error);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
+
   return (
-    <Container>
+    <BigContainer>
       <List>
         {selectedFilms.map((film, index) => (
           <ListItem key={index}>
@@ -45,14 +69,24 @@ const FilmPicker = ({ films }: { films: string[] }) => {
           </ListItem>
         ))}
       </List>
-      {selectedFilms.length === 1 && <FinalChoice>{`You should watch: ${selectedFilms[0]}`}</FinalChoice>}
-    </Container>
+      {selectedFilms.length === 1 && (
+        <FinalChoice>
+          {`You should watch: ${selectedFilms[0]}`}
+          <ButtonContainer>
+            <Button onClick={handleFinalDecision} disabled={isRemoving}>
+              We Will Watch It!
+            </Button>
+            <HintText>This movie will be removed from our stored copy of watchlist of every participant, so you don't need to update next time.</HintText>
+          </ButtonContainer>
+        </FinalChoice>
+      )}
+    </BigContainer>
   );
 };
 
 export default FilmPicker;
 
-const Container = styled.div`
+const BigContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -89,7 +123,8 @@ const ListItem = styled.li`
 `;
 
 const FilmText = styled.span<{ $crossedOut: boolean }>`
-  text-decoration: ${({ $crossedOut }) => ($crossedOut ? 'line-through' : 'none')};
+  text-decoration: ${({ $crossedOut }) =>
+    $crossedOut ? 'line-through' : 'none'};
   cursor: pointer;
   flex-grow: 1;
 `;
@@ -109,7 +144,55 @@ const CopyButton = styled.button<{ $isCopied: boolean }>`
   }
 `;
 
-const FinalChoice = styled.p`
+const FinalChoice = styled.div`
   margin-top: 20px;
   font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const HintText = styled.span`
+  visibility: hidden;
+  width: 330px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  position: relative;
+  display: inline-block;
+
+  &:hover ${HintText} {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
+
+const Button = styled.button`
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
 `;

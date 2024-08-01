@@ -1,4 +1,4 @@
-//Consider adding media queries to ensure responsiveness later on
+// TODO: Consider adding media queries to ensure responsiveness later on
 
 'use client';
 
@@ -24,7 +24,7 @@ const Container = styled.div`
   justify-content: center;
   height: 100vh;
   text-align: center;
-  gap: 20px; /* Добавлено пространство между элементами */
+  gap: 20px;
 `;
 
 const Button = styled.button`

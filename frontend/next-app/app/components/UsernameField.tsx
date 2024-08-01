@@ -1,16 +1,7 @@
 import React from 'react';
-import { Control, Controller, FieldError, UseFormRegister } from 'react-hook-form';
+import { Controller, FieldError } from 'react-hook-form';
 import styled from 'styled-components';
-
-interface UsernameFieldProps {
-  control: Control<any>;
-  register: UseFormRegister<any>;
-  index: number;
-  field: any;
-  remove: (index: number) => void;
-  setTypeToLB: (index: number) => void;
-  errors: any;
-}
+import { UsernameFieldProps } from '../types';
 
 const UsernameField: React.FC<UsernameFieldProps> = ({
   control,

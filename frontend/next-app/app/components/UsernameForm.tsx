@@ -1,21 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import { UsernamesContext } from '../context/UsernamesContext';
+import { FormData } from '../types';
 import { handleSubmitData } from '../utilities/submitHandler';
 import UsernameField from './UsernameField';
-
-export interface Username {
-  name: string;
-  type: string;
-  refresh: boolean;
-}
-
-export interface FormData {
-  usernames: Username[];
-}
 
 const schema = Yup.object().shape({
   usernames: Yup.array()
@@ -30,6 +22,7 @@ const schema = Yup.object().shape({
 });
 
 const UsernameForm = () => {
+  const { setUsernames } = useContext(UsernamesContext) || { setUsernames: () => {} };
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -41,7 +34,6 @@ const UsernameForm = () => {
     register,
     getValues,
     setValue,
-    watch,
   } = useForm<FormData>({
     resolver: yupResolver(schema) as any,
     defaultValues: { usernames: [{ name: '', type: 'LB', refresh: false }] },
@@ -69,6 +61,7 @@ const UsernameForm = () => {
 
   const onSubmit = (data: FormData) => {
     setIsSubmitting(true);
+    setUsernames(data.usernames);
     let delayTimer = setTimeout(() => {
       setDelayMessage('The initial loading or update may take some time.');
     }, 1000);
