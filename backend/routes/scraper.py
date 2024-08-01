@@ -44,7 +44,7 @@ async def scrape_and_store_watchlists(
         user = get_or_create_user(db, username.name)
         user_ids.append(user.id)
 
-        user_watchlist = get_user_watchlist(db, user.id)
+        user_watchlist = get_user_watchlist(db, user.id.scalar())
         if user_watchlist and not username.refresh:
             logging.info(
                 f"Found existing watchlist for user: {username.name} in the database"
