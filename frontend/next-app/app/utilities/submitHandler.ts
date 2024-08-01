@@ -22,7 +22,7 @@ export const handleSubmitData = async (
 
     console.log('UsernameForm: Gathered data:', JSON.stringify(payload));
 
-    const response = await fetch('/api/scrape/', {
+    const response = await fetch('http://localhost:8000/api/scrape/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
