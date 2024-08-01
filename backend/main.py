@@ -1,7 +1,7 @@
 import logging
 
 from backend.db.database import get_db
-from backend.routes import scraper
+from backend.routes import remove_film_from_wl, scraper
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,3 +22,6 @@ app.add_middleware(
 )
 
 app.include_router(scraper.router, prefix="/api", dependencies=[Depends(get_db)])
+app.include_router(
+    remove_film_from_wl.router, prefix="/api", dependencies=[Depends(get_db)]
+)

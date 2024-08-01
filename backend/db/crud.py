@@ -85,3 +85,7 @@ def get_watchlist_intersection(db: Session, user_ids: list):
 def clear_user_watchlist(db: Session, user_id: int):
     db.query(Watchlist).filter(Watchlist.user_id == user_id).delete()
     db.commit()
+
+
+def remove_film_from_watchlist(db: Session, username: str, film) -> bool:
+    return True

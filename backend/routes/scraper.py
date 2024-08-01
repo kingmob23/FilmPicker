@@ -42,9 +42,9 @@ async def scrape_and_store_watchlists(
         logging.info(f"Received request to scrape watchlist for user: {username}")
 
         user = get_or_create_user(db, username.name)
-        user_ids.append(user.id)
+        user_ids.append(user.id.value)
 
-        user_watchlist = get_user_watchlist(db, user.id)
+        user_watchlist = get_user_watchlist(db, user.id.value)
         if user_watchlist and not username.refresh:
             logging.info(
                 f"Found existing watchlist for user: {username.name} in the database"
@@ -60,11 +60,11 @@ async def scrape_and_store_watchlists(
                 f"Successfully scraped watchlist for user: {username.name}, found {len(watchlist)} items"
             )
 
-            clear_user_watchlist(db, user.id)
+            clear_user_watchlist(db, user.id.value)
 
             for movie in watchlist:
                 film = get_or_create_film_record(db, movie, username.type.lower())
-                add_film_to_watchlist(db, user.id, film.id)
+                add_film_to_watchlist(db, user.id.value, film.id.value)
 
         except Exception as e:
             logging.error(f"Error scraping watchlist for user {username}: {e}")
