@@ -1,4 +1,4 @@
-// Suggestions:
+// TODO:
 // Add more meta tags for better SEO and social media sharing.
 
 import type { Metadata } from "next";

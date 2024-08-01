@@ -1,19 +1,13 @@
 import logging
-from dataclasses import dataclass
 
 import requests
+from backend.schemas.schemas import LetterbFilmDetails
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger("custom_logger")
 
 
-@dataclass
-class FilmDetails:
-    lb_film_id: int
-    film_slug: str
-
-
-def scrape__lb_watchlist(username: str) -> list[FilmDetails]:
+def scrape__lb_watchlist(username: str) -> list[LetterbFilmDetails]:
     base_url = f"https://letterboxd.com/{username}/watchlist/page/"
     page = 1
     watchlist = []
@@ -58,7 +52,9 @@ def scrape__lb_watchlist(username: str) -> list[FilmDetails]:
                 film_slug = film_div.get("data-film-slug")
 
                 if lb_film_id and film_slug:
-                    film_details = FilmDetails(lb_film_id, film_slug)
+                    film_details = LetterbFilmDetails(
+                        lb_film_id=lb_film_id, film_slug=film_slug
+                    )
                     watchlist.append(film_details)
                 else:
                     raise ValueError("One or more attributes are missing")

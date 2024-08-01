@@ -20,8 +20,11 @@ pm2 logs my-next-app
 systemctl status myapp
 journalctl -u myapp.service -f
 
-/etc/nginx/sites-available/default
+cat /etc/nginx/sites-available/default
+tail -f /var/log/nginx/error.log
+tail -f /var/log/nginx/access.log
 
+cd /var/www/FilmPicker/frontend/next-app
 pm2 start npm --name "my-next-app" -- start
 
 

@@ -3,36 +3,21 @@ import random
 
 from backend.db.crud import (
     add_film_to_watchlist,
-    create_film,
+    clear_user_watchlist,
+    get_or_create_film_record,
+    get_or_create_user,
     get_user_watchlist,
     get_watchlist_intersection,
 )
 from backend.db.database import get_db
-from backend.db.models import Film, User
+from backend.schemas.schemas import ScrapeRequest, ScrapeResponse, Username
 from backend.utils.kp_from_files_scaper import scrape_kp_watchlist_from_files
 from backend.utils.kp_scraper import scrape_kp_watchlist
 from backend.utils.lb_scraper import scrape__lb_watchlist
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 router = APIRouter()
-
-
-class Username(BaseModel):
-    name: str
-    type: str
-    refresh: bool
-
-
-class ScrapeRequest(BaseModel):
-    usernames: list[Username]
-
-
-class ScrapeResponse(BaseModel):
-    intersection_len: int
-    intersection: list[str]
 
 
 def scrape_user_watchlist(username: Username):
@@ -56,16 +41,10 @@ async def scrape_and_store_watchlists(
     for username in request.usernames:
         logging.info(f"Received request to scrape watchlist for user: {username}")
 
-        user = db.query(User).filter(User.username == username.name).first()
-        if not user:
-            user = User(username=username.name)
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-
+        user = get_or_create_user(db, username.name)
         user_ids.append(user.id)
 
-        user_watchlist = get_user_watchlist(db, user.id)
+        user_watchlist = get_user_watchlist(db, user.id.scalar())
         if user_watchlist and not username.refresh:
             logging.info(
                 f"Found existing watchlist for user: {username.name} in the database"
@@ -81,35 +60,11 @@ async def scrape_and_store_watchlists(
                 f"Successfully scraped watchlist for user: {username.name}, found {len(watchlist)} items"
             )
 
-            for wl in watchlist:
-                if username.type.lower() == "lb":
-                    film = db.query(Film).filter(Film.lb_id == wl.lb_film_id).first()
-                    if not film:
-                        film = create_film(
-                            db, lb_id=wl.lb_film_id, lb_slug=wl.film_slug
-                        )
+            clear_user_watchlist(db, user.id.scalar())
 
-                elif username.type.lower() in ["kp", "ayz"]:
-                    film = (
-                        db.query(Film)
-                        .filter(Film.kp_russian_title == wl.russian_title)
-                        .first()
-                    )
-                    if not film:
-                        film = create_film(
-                            db,
-                            kp_russian_title=wl.russian_title,
-                            kp_english_title=wl.english_title,
-                            kp_director_name_rus=wl.director_name_rus,
-                            kp_year=wl.year,
-                        )
-
-                try:
-                    add_film_to_watchlist(db, user.id, film.id)
-                except IntegrityError as e:
-                    logging.error(
-                        f"Failed to add film {film.id} to watchlist for user {username.name}: {e}"
-                    )
+            for movie in watchlist:
+                film = get_or_create_film_record(db, movie, username.type.lower())
+                add_film_to_watchlist(db, user.id.scalar(), film.id.scalar())
 
         except Exception as e:
             logging.error(f"Error scraping watchlist for user {username}: {e}")
@@ -122,28 +77,27 @@ async def scrape_and_store_watchlists(
     if not intersection:
         raise HTTPException(
             status_code=500,
-            detail=f"Error processing request {ScrapeRequest}, no intersection in user's watchlist found",
+            detail=f"Error processing request {request}, no intersection in user's watchlist found",
         )
+
+    string_intersection = [
+        str(item["slug"] if item.get("slug") is not None else item["kp_english_title"])
+        for item in intersection
+    ]
 
     n = len(request.usernames) + 1
 
     if len(intersection) < n:
         return ScrapeResponse(
-            intersection_len=len(intersection),
-            intersection=intersection,
+            intersection_len=len(intersection), intersection=string_intersection
         )
 
     random_intersection = random.sample(
-        [
-            item["slug"] if item.get("slug") else item["kp_english_title"]
-            for item in intersection
-        ],
-        min(len(intersection), n),
+        string_intersection, min(len(string_intersection), n)
     )
 
     logging.info(f"{random_intersection} of type {type(random_intersection)}")
 
     return ScrapeResponse(
-        intersection_len=len(intersection),
-        intersection=random_intersection,
+        intersection_len=len(intersection), intersection=random_intersection
     )

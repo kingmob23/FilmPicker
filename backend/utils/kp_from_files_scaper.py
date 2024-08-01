@@ -2,22 +2,14 @@ import csv
 import logging
 import os
 import re
-from dataclasses import dataclass
 
+from backend.schemas.schemas import KinopFilmDetails
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger("custom_logger")
 
 
-@dataclass
-class FilmDetails:
-    russian_title: str
-    english_title: str
-    director_name_rus: str
-    year: int
-
-
-def parse_li_element(li) -> FilmDetails:
+def parse_li_element(li) -> KinopFilmDetails:
     russian_title = li.find("a", class_="name").text.strip()
 
     english_title_with_year = li.find("span").text.strip()
@@ -32,7 +24,7 @@ def parse_li_element(li) -> FilmDetails:
 
     director_name = li.find("i").find("a").text.strip()
 
-    return FilmDetails(
+    return KinopFilmDetails(
         russian_title=russian_title,
         english_title=english_title,
         director_name_rus=director_name,
@@ -40,7 +32,7 @@ def parse_li_element(li) -> FilmDetails:
     )
 
 
-def save_watchlist_to_csv(username: str, watchlist: list[FilmDetails]):
+def save_watchlist_to_csv(username: str, watchlist: list[KinopFilmDetails]):
     csv_filename = f"{username}_watchlist.csv"
     csv_filepath = os.path.join("backend/utils/csv", csv_filename)
 
@@ -64,7 +56,7 @@ def save_watchlist_to_csv(username: str, watchlist: list[FilmDetails]):
     logger.info(f"Watchlist for user {username} saved to {csv_filepath}")
 
 
-def scrape_kp_watchlist_from_files(username: str) -> list[FilmDetails]:
+def scrape_kp_watchlist_from_files(username: str) -> list[KinopFilmDetails]:
     base_dir = f"backend/utils/html"
     watchlist = []
 
@@ -87,7 +79,7 @@ def scrape_kp_watchlist_from_files(username: str) -> list[FilmDetails]:
         soup = BeautifulSoup(html_content, "html.parser")
         films_list = soup.find("ul", id="itemList", class_="dropper dropper2")
 
-        if not films_list:
+        if not films_list or isinstance(films_list, str):
             logger.info(
                 f"No film list found in file {file_path} for user: {username}. Skipping."
             )

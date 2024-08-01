@@ -25,5 +25,5 @@ htmlcov/
 .pytest_cache/
 
 
-csv/
-html/
+backend/utils/csv/
+backend/utils/html/

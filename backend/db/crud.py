@@ -1,34 +1,48 @@
+from tkinter import NO
+from typing import Optional
+
+from backend.db.models import Film, User, Watchlist
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from backend.db.models import Film, Watchlist
+
+def get_or_create_user(db: Session, username: str) -> User:
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        db_user = User(username=username)
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    return user
 
 
-def create_film(
-    db: Session,
-    lb_id: int = None,
-    lb_slug: str = None,
-    kp_russian_title: str = None,
-    kp_english_title: str = None,
-    kp_director_name_rus: str = None,
-    kp_year: int = None,
-):
-    db_film = Film(
-        lb_id=lb_id,
-        lb_slug=lb_slug,
-        kp_russian_title=kp_russian_title,
-        kp_english_title=kp_english_title,
-        kp_director_name_rus=kp_director_name_rus,
-        kp_year=kp_year,
-    )
-    db.add(db_film)
-    db.commit()
-    db.refresh(db_film)
-    return db_film
+def get_or_create_film_record(db: Session, movie, type: str) -> Film:
+    film = None
+    if type == "lb":
+        film = db.query(Film).filter(Film.lb_id == movie.lb_film_id).first()
+        if not film:
+            film = Film(lb_id=movie.lb_film_id, lb_slug=movie.film_slug)
+    elif type in ["kp", "ayz"]:
+        film = (
+            db.query(Film).filter(Film.kp_russian_title == movie.russian_title).first()
+        )
+        if not film:
+            film = Film(
+                kp_russian_title=movie.russian_title,
+                kp_english_title=movie.english_title,
+                kp_director_name_rus=movie.director_name_rus,
+                kp_year=movie.year,
+            )
+    if film is None:
+        db.add(film)
+        db.commit()
+        db.refresh(film)
+    return film
 
 
-def add_film_to_watchlist(db: Session, user_id: int, film_id: int):
+def add_film_to_watchlist(db: Session, user_id: int, film_id: int) -> Watchlist:
     existing_entry = (
         db.query(Watchlist).filter_by(user_id=user_id, film_id=film_id).first()
     )
@@ -69,3 +83,8 @@ def get_watchlist_intersection(db: Session, user_ids: list):
         {"slug": row.lb_slug, "kp_english_title": row.kp_english_title}
         for row in results
     ]
+
+
+def clear_user_watchlist(db: Session, user_id: int):
+    db.query(Watchlist).filter(Watchlist.user_id == user_id).delete()
+    db.commit()

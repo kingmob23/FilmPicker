@@ -1,24 +1,18 @@
 import logging
 import re
-from dataclasses import dataclass
 
 import requests
-from bs4 import BeautifulSoup
-
+from backend.schemas.schemas import KinopFilmDetails
 from backend.utils.save_html_to_file import save_html_to_file
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger("custom_logger")
 
 
-@dataclass
-class FilmDetails:
-    russian_title: str
-    english_title: str
-    director_name_rus: str
-    year: int
+from backend.schemas.schemas import KinopFilmDetails
 
 
-def parse_li_element(li) -> FilmDetails:
+def parse_li_element(li) -> KinopFilmDetails:
     russian_title = li.find("a", class_="name").text.strip()
 
     english_title_with_year = li.find("span").text.strip()
@@ -33,7 +27,7 @@ def parse_li_element(li) -> FilmDetails:
 
     director_name = li.find("i").find("a").text.strip()
 
-    return FilmDetails(
+    return KinopFilmDetails(
         russian_title=russian_title,
         english_title=english_title,
         director_name_rus=director_name,
@@ -41,7 +35,7 @@ def parse_li_element(li) -> FilmDetails:
     )
 
 
-def scrape_kp_watchlist(username: str) -> list[FilmDetails]:
+def scrape_kp_watchlist(username: str) -> list[KinopFilmDetails]:
     base_url = f"https://www.kinopoisk.ru/user/{username}/movies/list/type/3575/sort/default/vector/desc/page/"
     page = 1
     watchlist = []
@@ -66,7 +60,7 @@ def scrape_kp_watchlist(username: str) -> list[FilmDetails]:
         soup = BeautifulSoup(response.text, "html.parser")
         films_list = soup.find("ul", id="itemList", class_="dropper dropper2")
 
-        if not films_list:
+        if not films_list or isinstance(films_list, str):
             logger.info(
                 f"No film list found on page {page} for user: {username}. Stopping."
             )
