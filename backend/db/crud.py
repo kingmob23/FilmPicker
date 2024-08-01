@@ -39,6 +39,11 @@ def get_or_create_film_record(db: Session, movie, type: str) -> Film:
     return film
 
 
+# TODO: merge with get_or_create_film_record
+def get_film_by_slug(db: Session, slug: str) -> Film:
+    return db.query(Film).filter(Film.lb_slug == slug).first()
+
+
 def add_film_to_watchlist(db: Session, user_id: int, film_id: int) -> Watchlist:
     existing_entry = (
         db.query(Watchlist).filter_by(user_id=user_id, film_id=film_id).first()
@@ -87,5 +92,14 @@ def clear_user_watchlist(db: Session, user_id: int):
     db.commit()
 
 
-def remove_film_from_watchlist(db: Session, username: str, film) -> bool:
-    return True
+def remove_film_from_watchlist(db: Session, user_id: int, film_id: int) -> bool:
+    watchlist_entry = (
+        db.query(Watchlist)
+        .filter(Watchlist.user_id == user_id, Watchlist.film_id == film_id)
+        .first()
+    )
+    if watchlist_entry:
+        db.delete(watchlist_entry)
+        db.commit()
+        return True
+    return False

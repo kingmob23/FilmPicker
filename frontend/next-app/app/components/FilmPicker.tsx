@@ -8,6 +8,7 @@ const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username
   const [selectedFilms, setSelectedFilms] = useState<string[]>(films);
   const [copiedFilm, setCopiedFilm] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   useEffect(() => {
     setSelectedFilms(films);
@@ -42,6 +43,9 @@ const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username
         console.error('Failed to remove the film');
         return;
       }
+
+      setButtonClicked(true); // Set the button to clicked state
+
     } catch (error) {
       console.error('An error occurred while removing the film', error);
     } finally {
@@ -73,10 +77,12 @@ const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username
         <FinalChoice>
           {`You should watch: ${selectedFilms[0]}`}
           <ButtonContainer>
-            <Button onClick={handleFinalDecision} disabled={isRemoving}>
-              We Will Watch It!
+            <Button onClick={handleFinalDecision} disabled={isRemoving || buttonClicked}>
+              {buttonClicked ? 'You sworn to watch it!' : 'We Will Watch It!'}
             </Button>
-            <HintText>This movie will be removed from our stored copy of watchlist of every participant, so you don't need to update next time.</HintText>
+            {!buttonClicked && (
+              <HintText>This movie will be removed from our stored copy of watchlist of every participant, so you don't need to update next time.</HintText>
+            )}
           </ButtonContainer>
         </FinalChoice>
       )}

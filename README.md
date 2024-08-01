@@ -10,7 +10,7 @@ poetry run uvicorn backend.main:app --reload
 
 ---
 
-## (Пере)запуск на сервере
+## (Пере)запуск и дебаг на сервере
 systemctl stop myapp.service
 pm2 stop my-next-app
 
