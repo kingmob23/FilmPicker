@@ -1,4 +1,4 @@
-import { FormData } from '../components/UsernameForm';
+import { FormData } from '../types';
 
 export const handleSubmitData = async (
   data: FormData,
@@ -22,7 +22,7 @@ export const handleSubmitData = async (
 
     console.log('submitHandler: Gathered data:', JSON.stringify(payload));
 
-    const response = await fetch('http://localhost:8000/api/scrape/', {
+    const response = await fetch('/api/scrape/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

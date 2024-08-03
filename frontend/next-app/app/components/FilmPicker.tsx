@@ -33,7 +33,7 @@ const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username
     setIsRemoving(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/watchlist/remove', {
+      const response = await fetch('/api/watchlist/remove', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ film: selectedFilms[0], usernames }),
@@ -44,7 +44,7 @@ const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username
         return;
       }
 
-      setButtonClicked(true); // Set the button to clicked state
+      setButtonClicked(true);
 
     } catch (error) {
       console.error('An error occurred while removing the film', error);
