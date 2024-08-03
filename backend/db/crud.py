@@ -45,7 +45,6 @@ def get_film_by_slug(db: Session, slug: str) -> Film:
 
 
 def add_film_to_watchlist(db: Session, user_id: int, film_id: int) -> Watchlist:
-def add_film_to_watchlist(db: Session, user_id: int, film_id: int) -> Watchlist:
     existing_entry = (
         db.query(Watchlist).filter_by(user_id=user_id, film_id=film_id).first()
     )
