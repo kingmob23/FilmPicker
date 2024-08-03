@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import styled from 'styled-components';
 import Header from '../../components/Header';
 import ResultsList from '../../components/ResultsList';
@@ -7,7 +8,9 @@ import ResultsList from '../../components/ResultsList';
 const ResultsPage = () => (
   <Container>
     <Header />
-    <ResultsList />
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResultsList />
+    </Suspense>
   </Container>
 );
 

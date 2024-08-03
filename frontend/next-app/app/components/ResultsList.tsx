@@ -10,7 +10,7 @@ const ResultsList = () => {
   const searchParams = useSearchParams();
   const [intersection, setIntersection] = useState([]);
   const [intersectionLen, setIntersectionLen] = useState(0);
-  const { usernames } = useContext(UsernamesContext) || { setUsernames: () => {} };
+  const { usernames = [] } = useContext(UsernamesContext) || {};
 
   useEffect(() => {
     const intersectionParam = searchParams.get('intersection');

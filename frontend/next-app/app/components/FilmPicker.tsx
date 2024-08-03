@@ -81,7 +81,7 @@ const FilmPicker = ({ films, usernames }: { films: string[], usernames: Username
               {buttonClicked ? 'You sworn to watch it!' : 'We Will Watch It!'}
             </Button>
             {!buttonClicked && (
-              <HintText>This movie will be removed from our stored copy of watchlist of every participant, so you don't need to update next time.</HintText>
+              <HintText>This movie will be removed from our stored copy of watchlist of every participant, so you don&apos;t need to update next time.</HintText>
             )}
           </ButtonContainer>
         </FinalChoice>
